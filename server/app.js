@@ -74,6 +74,10 @@ app.post('/links',
     });
 });
 
+app.post('/signup', Auth.createUser);
+
+app.post('/login', Auth.loginUser);
+
 /************************************************************/
 // Write your authentication routes here
 /************************************************************/
