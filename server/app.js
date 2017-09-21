@@ -21,56 +21,33 @@ app.use(cookieParser, Auth.createSession);
 
 app.get('/', 
   (req, res, next) => {
-    if (req.cookies) {
-      models.Sessions.get({hash: req.cookies.shortlyid})
-        .then(data => {
-          if (data) {
-            res.render('index');
-          } else {
-            res.redirect('/login');
-          }
-        });
-    } else {
-      res.redirect('/login');
-    }
+    Auth.verifyUser(req, res, next, () => {
+      res.render('index');
+    });
+
   });
 
 app.get('/create', 
   (req, res, next) => {
-    if (req.cookies) {
-      models.Sessions.get({hash: req.cookies.shortlyid})
-        .then(data => {
-          if (data) {
-            res.render('index');
-          } else {
-            res.redirect('/login');
-          }
-        });
-    } else {
-      res.redirect('/login');
-    }
+    Auth.verifyUser(req, res, next, () => {
+      res.render('index');
+    });
+
   });
 
 app.get('/links', 
   (req, res, next) => {
-    if (req.cookies) {
-      models.Sessions.get({hash: req.cookies.shortlyid})
-        .then(data => {
-          if (data) {
-            models.Links.getAll()
-              .then(links => {
-                res.status(200).send(links);
-              })
-              .error(error => {
-                res.status(500).send(error);
-              });
-          } else {
-            res.redirect('/login');
-          }
-        });
-    } else {
-      res.redirect('/login');
-    }
+    Auth.verifyUser(req, res, next, () => {
+      if (data) {
+        models.Links.getAll()
+          .then(links => {
+            res.status(200).send(links);
+          })
+          .error(error => {
+            res.status(500).send(error);
+          });
+      }
+    });
   });
 
 app.post('/links', 

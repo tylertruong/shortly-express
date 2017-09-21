@@ -90,3 +90,20 @@ module.exports.logoutUser = (req, res, next) => {
       next();
     });
 };
+
+
+module.exports.verifyUser = (req, res, next, callback) => {
+  if (req.cookies) {
+    models.Sessions.get({hash: req.cookies.shortlyid})
+      .then(data => {
+        if (data) {
+          callback();
+          next();
+        } else {
+          res.redirect('/login');
+        }
+      });
+  } else {
+    res.redirect('/login');
+  }
+};
