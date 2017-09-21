@@ -19,38 +19,29 @@ app.use(express.static(path.join(__dirname, '../public')));
 app.use(cookieParser, Auth.createSession);
 
 
-app.get('/', 
+app.get('/', Auth.verifySession,
   (req, res, next) => {
-    Auth.verifyUser(req, res, next, () => {
-      res.render('index');
-    });
+    res.render('index');
+  });
+
+app.get('/create', Auth.verifySession,
+  (req, res, next) => {
+    res.render('index');
+  });
+
+app.get('/links', Auth.verifySession,
+  (req, res, next) => {
+    models.Links.getAll()
+      .then(links => {
+        res.status(200).send(links);
+      })
+      .error(error => {
+        res.status(500).send(error);
+      });
 
   });
 
-app.get('/create', 
-  (req, res, next) => {
-    Auth.verifyUser(req, res, next, () => {
-      res.render('index');
-    });
-
-  });
-
-app.get('/links', 
-  (req, res, next) => {
-    Auth.verifyUser(req, res, next, () => {
-      if (data) {
-        models.Links.getAll()
-          .then(links => {
-            res.status(200).send(links);
-          })
-          .error(error => {
-            res.status(500).send(error);
-          });
-      }
-    });
-  });
-
-app.post('/links', 
+app.post('/links', Auth.verifySession, 
   (req, res, next) => {
     var url = req.body.url;
     if (!models.Links.isValidUrl(url)) {
@@ -107,7 +98,6 @@ app.get('/logout', Auth.logoutUser);
 /************************************************************/
 
 app.get('/:code', (req, res, next) => {
-
   return models.Links.get({ code: req.params.code })
     .tap(link => {
 
