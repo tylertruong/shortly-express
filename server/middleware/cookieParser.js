@@ -9,7 +9,6 @@ const parseCookies = (req, res, next) => {
       cookies.push(element.split('='));
     });
     cookies.forEach(element => {
-      //res.cookie(element[0], element[1]);
       cookieObj[element[0]] = element[1];
     });
     req.cookies = cookieObj;

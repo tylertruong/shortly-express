@@ -20,9 +20,8 @@ app.use(express.static(path.join(__dirname, '../public')));
 
 
 app.get('/', 
-(req, res) => {
-  Auth.createUser();
-  res.render('index');
+(req, res, next) => {
+  cookieParser(req, res, Auth.createSession(req, res, res.render('index')));
 });
 
 app.get('/create', 
@@ -85,8 +84,8 @@ app.post('/login', Auth.loginUser);
 // Write your authentication routes here
 /************************************************************/
 
-app.use(cookieParser);
-app.use(Auth.createSession);
+//app.use(cookieParser);
+//app.use(Auth.createSession);
 
 
 /************************************************************/
