@@ -16,14 +16,11 @@ app.use(partials());
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname, '../public')));
-
+app.use(cookieParser, Auth.createSession);
 
 
 app.get('/', 
 (req, res, next) => {
-  //cookieParser(req, res, next);
-  Auth.createSession(req, res);
-
   res.render('index');
 });
 
@@ -79,16 +76,16 @@ app.post('/links',
     });
 });
 
-app.post('/signup', Auth.createUser);
 
-app.post('/login', Auth.loginUser);
 
 /************************************************************/
 // Write your authentication routes here
 /************************************************************/
 
-//app.use(cookieParser);
-//app.use(Auth.createSession);
+app.post('/signup', Auth.createUser);
+
+app.post('/login', Auth.loginUser);
+
 
 
 /************************************************************/
