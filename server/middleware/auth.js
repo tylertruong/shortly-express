@@ -25,11 +25,11 @@ module.exports.createSession = (req, res, next) => {
     models.Sessions.create()
       .then((result) => {
         models.Sessions.get({id: result.insertId})
-        .then((data) => {
-          req.session = {hash: data.hash};
-          res.cookie('shortlyid', data.hash);
-          next();
-        }); 
+          .then((data) => {
+            req.session = {hash: data.hash};
+            res.cookie('shortlyid', data.hash);
+            next();
+          }); 
       });
   }
 
@@ -51,9 +51,15 @@ module.exports.createUser = (req, res, next) => {
           username: username,
           password: password,
         };
-        models.Users.create(options);
-        res.location('/');
-        next();
+        models.Users.create(options)
+          .then (data => {
+            models.Users.get({username: username})
+              .then(data => {
+                models.Sessions.update({hash: req.session.hash}, {userId: data.id});
+                res.redirect('/');
+                next();
+              });
+          });
       }
     });
 };
@@ -64,15 +70,23 @@ module.exports.loginUser = (req, res, next) => {
     .then((result) => {
       if (result) {
         if (utils.compareHash(password, result.password, result.salt)) {
-          res.location('/');
+          res.redirect('/');
           next();
         } else {
-          res.location('/login');
+          res.redirect('/login');
           next();
         }
       } else {
-        res.location('/login');
+        res.redirect('/login');
         next();
       }
+    });
+};
+
+
+module.exports.logoutUser = (req, res, next) => {
+  models.Sessions.delete({ hash: req.cookies.shortlyid })
+    .then(() => {
+      next();
     });
 };
