@@ -8,15 +8,26 @@ module.exports.createSession = (req, res, next) => {
   if (Object.keys(req.cookies).length !== 0) {
     models.Sessions.get({hash: req.cookies.shortlyid})
       .then((data) => {
-        req.session = data;
-        next();
+        if (data) {
+          req.session = data;
+          next();
+        } else {
+          models.Sessions.create() 
+            .then((result) => {
+              models.Sessions.get({id: result.insertId})
+                .then((data) => {
+                  req.session = {hash: data.hash};
+                  res.cookie('shortlyid', data.hash);
+                  next();
+                }); 
+            });
+        }
       });
   } else {
     models.Sessions.create()
       .then((result) => {
         models.Sessions.get({id: result.insertId})
         .then((data) => {
-          console.log(data);
           req.session = {hash: data.hash};
           res.cookie('shortlyid', data.hash);
           next();
