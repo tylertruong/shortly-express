@@ -21,7 +21,10 @@ app.use(express.static(path.join(__dirname, '../public')));
 
 app.get('/', 
 (req, res, next) => {
-  cookieParser(req, res, Auth.createSession(req, res, res.render('index')));
+  //cookieParser(req, res, next);
+  Auth.createSession(req, res);
+
+  res.render('index');
 });
 
 app.get('/create', 
