@@ -36,19 +36,41 @@ app.get('/',
   });
 
 app.get('/create', 
-  (req, res) => {
-    res.render('index');
+  (req, res, next) => {
+    if (req.cookies) {
+      models.Sessions.get({hash: req.cookies.shortlyid})
+        .then(data => {
+          if (data) {
+            res.render('index');
+          } else {
+            res.redirect('/login');
+          }
+        });
+    } else {
+      res.redirect('/login');
+    }
   });
 
 app.get('/links', 
   (req, res, next) => {
-    models.Links.getAll()
-      .then(links => {
-        res.status(200).send(links);
-      })
-      .error(error => {
-        res.status(500).send(error);
-      });
+    if (req.cookies) {
+      models.Sessions.get({hash: req.cookies.shortlyid})
+        .then(data => {
+          if (data) {
+            models.Links.getAll()
+              .then(links => {
+                res.status(200).send(links);
+              })
+              .error(error => {
+                res.status(500).send(error);
+              });
+          } else {
+            res.redirect('/login');
+          }
+        });
+    } else {
+      res.redirect('/login');
+    }
   });
 
 app.post('/links', 
