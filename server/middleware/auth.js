@@ -8,18 +8,21 @@ module.exports.createSession = (req, res, next) => {
       .then((data) => {
         if (data) {
           req.session = data;
-          next();
+          throw Error;
         } else {
-          models.Sessions.create() 
-            .then((result) => {
-              models.Sessions.get({id: result.insertId})
-                .then((data) => {
-                  req.session = data;
-                  res.cookie('shortlyid', data.hash);
-                  next();
-                }); 
-            });
+          return models.Sessions.create();
         }
+      }) 
+      .then((result) => {
+        return models.Sessions.get({id: result.insertId});
+      })
+      .then((data) => {
+        req.session = data;
+        res.cookie('shortlyid', data.hash);
+        throw Error;
+      })
+      .catch(err => {
+        next();
       });
   } else {
     models.Sessions.create()
@@ -45,7 +48,6 @@ module.exports.createUser = (req, res, next) => {
     .then((result) => {
       if (result) {
         res.redirect('/signup');
-        // next();
       } else {
         const options = {
           username: username,
